@@ -1,0 +1,8 @@
+torch
+torchaudio
+transformers
+librosa
+matplotlib
+soundfile
+scikit-learn
+kagglehub
