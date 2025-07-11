@@ -32,26 +32,66 @@ A deep learning-based system for **real-time speech style transfer** using a mod
 
 ---
 
-## 📦 Installation
-bash
-git clone https://github.com/your-username/speech-style-transfer.git
-cd speech-style-transfer
+## 📦 Requirements
+Install all dependencies:
+```bash
 pip install -r requirements.txt
+```
+Typical contents of `requirements.txt`:
+- torch
+- torchaudio
+- transformers  # for Wav2Vec2
+- librosa
+- matplotlib
+- soundfile
+- scikit-learn
+```
+transformers==4.36.2
+```
 
-🎓 Dataset
-RAVDESS (Ryerson Audio-Visual Database of Emotional Speech and Song)
-1,440 high-quality WAV speech files across 8 emotions (with strong & normal intensity)
-Balanced across 24 professional actors (12 male, 12 female)
-Preprocessed into:
-  -16kHz resampled waveform
-  -Mel spectrograms for style/speaker encoders
+---
 
-🧠 Model Pipeline
-[Input Speech] → Wav2Vec2 → Content Embeddings
-[Speaker Ref]  → CNN Encoder → Speaker Embedding
-[Style Ref]    → CNN Encoder → Style Embedding
-→ Style Modulator (MLP) → Modulated Features → HiFi-GAN Vocoder → Output Speech
-⚠️ Note: Current vocoder projection step is a limitation — HiFi-GAN input requires refinement for fully natural audio generation.
+## 🏃‍♂️ Usage
+
+### 1. Training
+```bash
+python train.py
+```
+Ensure your dataset is preprocessed and follows the CREMA-D directory structure.
+
+### 2. Inference
+```bash
+python inference.py
+```
+Files required in root directory:
+- `input_speech.wav`: source to be transformed
+- `speaker_reference.wav`: identity provider
+- `style_reference.wav`: emotional/style reference
+
+### 3. Evaluation
+```bash
+python evaluate.py
+```
+Generates and saves a spectrogram comparison to:
+- `spectrogram_comparison.png`
+
+---
+
+## 🎯 Model Architecture
+- `ContentEncoder`: Wav2Vec2 Base (768-dim), pretrained, frozen during fine-tuning
+- `SpeakerEncoder`: 3-layer FFNN, trained using online triplet loss
+- `StyleEncoder`: CNN + pooling + MLP projecting to 128-dim prosody vector
+- `StyleModulator`: Deep MLP with LayerNorm, GELU, and Dropout, auto-handling sequence alignment
+- `Vocoder`: HiFi-GAN V1, optionally fine-tuned on custom outputs
+
+---
+
+## 🔧 Advanced Configuration
+- Replace `SpeakerEncoder` with `ECAPA-TDNN` from `SpeechBrain` for better identity modeling
+- Enable multilingual transfer by swapping in `Wav2Vec2-XLSR`
+- Support continuous style interpolation using vector mixing
+
+---or fully natural audio generation.
 
 🧪 Evaluation Results
 Metric	Score
